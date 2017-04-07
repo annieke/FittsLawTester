@@ -23,19 +23,27 @@ public class SettingsWindow extends JFrame {
 		layout.setAutoCreateContainerGaps(true);
 		
 		JLabel idl = new JLabel("Subject ID:");
-		JTextField idtf = new JTextField("ID", 5);
+		JSpinner ids = new JSpinner();
 		
 		JLabel triall = new JLabel("Trials per condition:");
-		JTextField trialtf = new JTextField("Trials", 5); 
+		JSpinner trials = new JSpinner(); 
+		
+		JLabel ampl = new JLabel("Amplitudes: (pixels)");
+		JSpinner amps = new JSpinner(); 
+		
+		JLabel widl = new JLabel("Widths: (pixels)");
+		JSpinner wids = new JSpinner(); 
+		
+		JLabel indl = new JLabel("Indices of Difficulty (7 unique):");
 		
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 				.addGroup(layout.createSequentialGroup()
 					.addComponent(idl)
-					.addComponent(idtf))
+					.addComponent(ids))
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(triall)
-						.addComponent(trialtf))
+						.addComponent(trials))
 			)
 		);
 		
@@ -43,11 +51,11 @@ public class SettingsWindow extends JFrame {
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 						.addComponent(idl)
-						.addComponent(idtf)
+						.addComponent(ids)
 				)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 						.addComponent(triall)
-						.addComponent(trialtf)
+						.addComponent(trials)
 				)
 		);
 		add(contentPane);
