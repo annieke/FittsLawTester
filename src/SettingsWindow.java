@@ -16,14 +16,41 @@ public class SettingsWindow extends JFrame {
 		setTitle("Settings"); 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
 		
+		contentPane = new JPanel(); 	
+		GroupLayout layout = new GroupLayout(contentPane);
+		contentPane.setLayout(layout);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
 		
-		contentPane = new JPanel(); 
-		setContentPane(contentPane); 
-		contentPane.setLayout(null);
+		JLabel idl = new JLabel("Subject ID:");
+		JTextField idtf = new JTextField("ID", 5);
 		
-		JLabel id = new JLabel("Subject ID:");
-		contentPane.add(id);
+		JLabel triall = new JLabel("Trials per condition:");
+		JTextField trialtf = new JTextField("Trials", 5); 
 		
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+				.addGroup(layout.createSequentialGroup()
+					.addComponent(idl)
+					.addComponent(idtf))
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(triall)
+						.addComponent(trialtf))
+			)
+		);
+		
+		
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+						.addComponent(idl)
+						.addComponent(idtf)
+				)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+						.addComponent(triall)
+						.addComponent(trialtf)
+				)
+		);
+		add(contentPane);
 		pack(); 
 	}
 	
