@@ -42,6 +42,12 @@ public class SettingsWindow extends JFrame {
 				ampmodel.addElement((Integer) amps.getValue());
 			}
 		});
+		delAmp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!amplist.isSelectionEmpty()) 
+					ampmodel.remove(amplist.getSelectedIndex());
+			}
+		});
 		
 		JLabel widl = new JLabel("Widths: (pixels)");
 		JSpinner wids = new JSpinner(); 
@@ -54,6 +60,12 @@ public class SettingsWindow extends JFrame {
 		addWid.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				widmodel.addElement((Integer) wids.getValue());
+			}
+		});
+		delWid.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!widlist.isSelectionEmpty()) 
+					widmodel.remove(widlist.getSelectedIndex());
 			}
 		});
 		
