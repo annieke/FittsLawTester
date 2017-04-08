@@ -30,34 +30,91 @@ public class SettingsWindow extends JFrame {
 		
 		JLabel ampl = new JLabel("Amplitudes: (pixels)");
 		JSpinner amps = new JSpinner(); 
+		JButton addAmp = new JButton("+"); 
+		JButton delAmp = new JButton("-");
+		JScrollPane ampscroll = new JScrollPane();
+		JList amplist = new JList(new DefaultListModel()); 
+		ampscroll.setViewportView(amplist);
 		
 		JLabel widl = new JLabel("Widths: (pixels)");
 		JSpinner wids = new JSpinner(); 
+		JButton addWid = new JButton("+"); 
+		JButton delWid = new JButton("-");
+		JScrollPane widscroll = new JScrollPane();
+		JList widlist = new JList(new DefaultListModel()); 
+		widscroll.setViewportView(widlist);
 		
-		JLabel indl = new JLabel("Indices of Difficulty (7 unique):");
+		JLabel indl = new JLabel("Indices of Difficulty:");
+		JScrollPane indscroll = new JScrollPane();
+		JList indlist = new JList(new DefaultListModel()); 
+		indscroll.setViewportView(indlist);
+		
+		JLabel totall = new JLabel("Total trials: "); 
+		JButton ok = new JButton("OK"); 
+		JButton cancel = new JButton("Cancel"); 
 		
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 				.addGroup(layout.createSequentialGroup()
 					.addComponent(idl)
-					.addComponent(ids))
+					.addComponent(ids, 50, 80, 100))
 				.addGroup(layout.createSequentialGroup()
-						.addComponent(triall)
-						.addComponent(trials))
-			)
+					.addComponent(triall)
+					.addComponent(trials, 50, 80, 100))
+				.addGroup(layout.createSequentialGroup()
+                    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                    	.addComponent(ampl)
+                        .addGroup(layout.createSequentialGroup()
+                        	.addComponent(amps)
+                            .addComponent(addAmp)
+                            .addComponent(delAmp))
+                        .addComponent(ampscroll)
+                        .addComponent(totall))
+                    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                    	.addComponent(widl)
+                    	.addGroup(layout.createSequentialGroup()
+                    		.addComponent(wids)
+                            .addComponent(addWid)
+                            .addComponent(delWid))
+                        .addComponent(widscroll))
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                	.addComponent(indl)
+                    .addComponent(indscroll)
+                    .addGroup(layout.createSequentialGroup()
+                    	.addComponent(ok)
+                    	.addComponent(cancel)))))
 		);
 		
 		
 		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-						.addComponent(idl)
-						.addComponent(ids)
-				)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-						.addComponent(triall)
-						.addComponent(trials)
-				)
+			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				.addComponent(idl)
+				.addComponent(ids))
+			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				.addComponent(triall)
+				.addComponent(trials))
+			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+				.addComponent(ampl)
+				.addComponent(widl)
+				.addComponent(indl))
+		    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    	.addComponent(amps)
+		    	.addComponent(addAmp)
+		    	.addComponent(delAmp)
+		    	.addComponent(wids)
+		    	.addComponent(addWid)
+		    	.addComponent(delWid))
+		    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+		    	.addComponent(ampscroll)
+		    	.addComponent(widscroll)
+		    	.addComponent(indscroll))
+		    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    	.addComponent(totall)
+		    	.addComponent(ok)
+		    	.addComponent(cancel))
 		);
+		
+		
 		add(contentPane);
 		pack(); 
 	}
