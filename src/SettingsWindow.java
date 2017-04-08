@@ -1,5 +1,6 @@
 import java.util.*;
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -33,16 +34,28 @@ public class SettingsWindow extends JFrame {
 		JButton addAmp = new JButton("+"); 
 		JButton delAmp = new JButton("-");
 		JScrollPane ampscroll = new JScrollPane();
-		JList amplist = new JList(new DefaultListModel()); 
+		DefaultListModel<Integer> ampmodel = new DefaultListModel<Integer>();
+		JList<Integer> amplist = new JList<Integer>(ampmodel); 
 		ampscroll.setViewportView(amplist);
+		addAmp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ampmodel.addElement((Integer) amps.getValue());
+			}
+		});
 		
 		JLabel widl = new JLabel("Widths: (pixels)");
 		JSpinner wids = new JSpinner(); 
 		JButton addWid = new JButton("+"); 
 		JButton delWid = new JButton("-");
 		JScrollPane widscroll = new JScrollPane();
-		JList widlist = new JList(new DefaultListModel()); 
+		DefaultListModel<Integer> widmodel = new DefaultListModel<Integer>(); 
+		JList<Integer> widlist = new JList<Integer>(widmodel); 
 		widscroll.setViewportView(widlist);
+		addWid.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				widmodel.addElement((Integer) wids.getValue());
+			}
+		});
 		
 		JLabel indl = new JLabel("Indices of Difficulty:");
 		JScrollPane indscroll = new JScrollPane();
@@ -50,8 +63,20 @@ public class SettingsWindow extends JFrame {
 		indscroll.setViewportView(indlist);
 		
 		JLabel totall = new JLabel("Total trials: "); 
-		JButton ok = new JButton("OK"); 
+		JButton ok = new JButton("OK");
+		ok.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				dispose();
+			}
+		});
 		JButton cancel = new JButton("Cancel"); 
+		cancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				dispose();
+			}
+		});
 		
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
