@@ -5,7 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- * Tester for Fitt's Law
+ * Settings Window for Fitt's Law Tester
  * 
  * @author Annie Ke, Dartmouth 17S CS67 Human Computer Interaction 
  */
@@ -71,7 +71,8 @@ public class SettingsWindow extends JFrame {
 		
 		JLabel indl = new JLabel("Indices of Difficulty:");
 		JScrollPane indscroll = new JScrollPane();
-		JList indlist = new JList(new DefaultListModel()); 
+		DefaultListModel<Double> indmodel = new DefaultListModel<Double>();
+		JList<Double> indlist = new JList(indmodel); 
 		indscroll.setViewportView(indlist);
 		
 		JLabel totall = new JLabel("Total trials: "); 
