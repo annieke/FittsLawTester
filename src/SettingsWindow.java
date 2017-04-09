@@ -40,7 +40,7 @@ public class SettingsWindow extends JFrame {
 	
 	private JLabel indl;
 	private JScrollPane indscroll;
-	private DefaultListModel<Double> indmodel;
+	private SortedListModel<Double> indmodel;
 	private JList<Double> indlist; 
 	
 	private JLabel totall;
@@ -89,6 +89,7 @@ public class SettingsWindow extends JFrame {
 					ampmodel.addElement((Integer) amps.getValue());
 					totall.setText("Total trials: " 
 						+ Integer.toString((int)trials.getValue() * ampmodel.size() * widmodel.size()));
+					updateIndices();
 				}
 			}
 		});
@@ -98,6 +99,7 @@ public class SettingsWindow extends JFrame {
 					totall.setText("Total trials: " 
 							+ Integer.toString((int)trials.getValue() * ampmodel.size() * widmodel.size()));
 					ampmodel.remove(amplist.getSelectedIndex());
+					updateIndices();
 				}
 			}
 		});
@@ -116,6 +118,7 @@ public class SettingsWindow extends JFrame {
 					widmodel.addElement((Integer) wids.getValue());
 					totall.setText("Total trials: " 
 							+ Integer.toString((int)trials.getValue() * ampmodel.size() * widmodel.size()));
+					updateIndices();
 				}
 			}
 		});
@@ -125,14 +128,15 @@ public class SettingsWindow extends JFrame {
 					widmodel.remove(widlist.getSelectedIndex());
 					totall.setText("Total trials: " 
 							+ Integer.toString((int)trials.getValue() * ampmodel.size() * widmodel.size()));
+					updateIndices(); 
 				}
 			}
 		});
 		
 		indl = new JLabel("Indices of Difficulty:");
 		indscroll = new JScrollPane();
-		indmodel = new DefaultListModel<Double>();
-		indlist = new JList(indmodel); 
+		indmodel = new SortedListModel<Double>();
+		indlist = new JList<Double>(indmodel); 
 		indscroll.setViewportView(indlist);
 		
 		totall = new JLabel("Total trials: "); 
@@ -155,6 +159,17 @@ public class SettingsWindow extends JFrame {
 		add(contentPane);
 		pack(); 
 		
+	}
+	
+	private void updateIndices() {
+		indmodel = new SortedListModel<Double>(); 
+		indlist.setModel(indmodel);
+		for (int i = 0; i < ampmodel.size(); i++) {
+			for (int j = 0; j < widmodel.size(); j++) {
+				double index = Math.log(2*ampmodel.getElementAt(i)/widmodel.getElementAt(j))/Math.log(2);
+				indmodel.add(index);
+			}
+		}
 	}
 	
 	private void setLayout() {
@@ -232,5 +247,62 @@ public class SettingsWindow extends JFrame {
 				}
 			}
 		});	
+	}
+}
+
+class SortedListModel<Double> extends AbstractListModel<Double> {
+	SortedSet<Double> model;
+
+	public SortedListModel() {
+		model = new TreeSet<Double>();
+	}
+	
+	public int getSize() {
+		return model.size();
+	}
+
+	public Double getElementAt(int index) {
+	    return (Double)model.toArray()[index];
+	}
+
+	public void add(Double element) {
+	    if (model.add(element)) {
+	    	fireContentsChanged(this, 0, getSize());
+	  }
+	}
+	
+	public void addAll(Double elements[]) {
+		Collection<Double> c = Arrays.asList(elements);
+	    model.addAll(c);
+	    fireContentsChanged(this, 0, getSize());
+	}
+
+	public void clear() {
+		model.clear();
+	    fireContentsChanged(this, 0, getSize());
+	}
+
+	public boolean contains(Double element) {
+		return model.contains(element);
+	}
+
+	public Double firstElement() {
+		return model.first();
+	}
+
+	public Iterator iterator() {
+		return model.iterator();
+	}
+
+	public Double lastElement() {
+		return model.last();
+	}
+
+	public boolean removeElement(Double element) {
+		boolean removed = model.remove(element);
+	    if (removed) {
+	      fireContentsChanged(this, 0, getSize());
+	    }
+	    return removed;
 	}
 }
