@@ -143,10 +143,15 @@ public class SettingsWindow extends JFrame {
 		ok = new JButton("OK");
 		ok.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				int id = (int) ids.getValue();
+				int trial = (int) trials.getValue();
+				TrialWindow trialframe = new TrialWindow(id, trial, ampmodel, widmodel);
+				trialframe.setVisible(true);
 				setVisible(false);
 				dispose();
 			}
 		});
+		
 		cancel = new JButton("Cancel"); 
 		cancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -250,6 +255,9 @@ public class SettingsWindow extends JFrame {
 	}
 }
 
+/*
+ * SortedListModeled adapted from java2s.com
+ */
 class SortedListModel<Double> extends AbstractListModel<Double> {
 	SortedSet<Double> model;
 
