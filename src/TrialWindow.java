@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.Timer;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -20,6 +21,8 @@ public class TrialWindow extends JFrame {
 	long tStart; 
 	long tEnd; 
 	long time;
+	private ArrayList<timePoint> points;
+	Timer pointlogger; 
 	
 	
 	JComponent trialArea; 
@@ -28,6 +31,7 @@ public class TrialWindow extends JFrame {
 	JLabel trialsLeft;
 	JButton target; 
 	JLabel timel; 
+	JFrame frame;
 	
 	BufferedWriter summaryBW;
 	FileWriter summaryFW; 
@@ -38,6 +42,7 @@ public class TrialWindow extends JFrame {
 	
 	public TrialWindow(int id, int trial, ListModel ampmodel, ListModel widmodel) {
 		this.id = id; 
+		this.frame = this;
 		setTitle("Trials"); 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
 		
@@ -102,6 +107,18 @@ public class TrialWindow extends JFrame {
 				if (timel != null) trialArea.remove(timel);
 				success = true;
 				tStart = System.currentTimeMillis();
+				points = new ArrayList<timePoint>();
+				pointlogger = new Timer();
+				pointlogger.schedule(new TimerTask() {
+					public void run()  {
+						long tNow = System.currentTimeMillis();
+						int tDelta = (int)(tNow - tStart);
+						Point absolutePoint = MouseInfo.getPointerInfo().getLocation();
+						int relX = (int)(absolutePoint.getX() - frame.getX());
+						int relY = (int)(absolutePoint.getY() - frame.getY());
+						points.add(new timePoint(tDelta, new Point(relX, relY)));  
+					}
+				}, 1, 1);
 				runTrial(trial); 
 				trial++;
 			}
@@ -129,11 +146,14 @@ public class TrialWindow extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					tEnd = System.currentTimeMillis();
 					time = tEnd - tStart;
+					pointlogger.cancel();
+					pointlogger.purge();
+					
 					timel = new JLabel(Double.toString(time) + "ms");
 					timel.setBounds((int)target.getBounds().getMaxX(), 
 							(int)target.getBounds().getMaxY(), 150, 20);
 					trialArea.add(timel);
-					writeToSummary(trial+1, condition.amp, condition.wid); 
+					writeToLogs(trial+1, condition.amp, condition.wid); 
 					
 					trialArea.remove(target);
 					start.setBackground(Color.BLACK);
@@ -155,15 +175,20 @@ public class TrialWindow extends JFrame {
 			trialArea.add(target);
 			trialArea.repaint();
 		} else {
+			pointlogger.cancel();
+			pointlogger.purge();
 			this.setVisible(false);
 			this.dispose();
 		}
 	}
 	
-	private void writeToSummary(int trial, int amp, int wid) {
+	private void writeToLogs(int trial, int amp, int wid) {
 		try {
 			summaryFW = new FileWriter(summary.getAbsoluteFile(), true);
 			summaryBW = new BufferedWriter(summaryFW);
+			
+			trajectoryFW = new FileWriter(trajectory.getAbsoluteFile(), true);
+			trajectoryBW = new BufferedWriter(trajectoryFW);
 			
 			int startPosX = (int)(start.getBounds().getMaxX()+start.getBounds().getMinX())/2;
 			int startPosY = (int)(start.getBounds().getMaxY()+start.getBounds().getMinY())/2;
@@ -175,15 +200,29 @@ public class TrialWindow extends JFrame {
 			
 			String result = Integer.toString(id)+" "+Integer.toString(trial)+" "
 					+Integer.toString(amp)+" "+Integer.toString(wid)+" ("
-					+Integer.toString(startPosX)+", "+Integer.toString(startPosY)+") ("
-					+Integer.toString(targetPosX)+", "+Integer.toString(targetPosY)+") "
+					+Integer.toString(startPosX)+","+Integer.toString(startPosY)+") ("
+					+Integer.toString(targetPosX)+","+Integer.toString(targetPosY)+") "
 					+Integer.toString((int)time)+" "+Integer.toString(successInt);
 			
 			summaryBW.write(result);
 			summaryBW.newLine();
 			
+			for(int i = 0; i < points.size(); i++) {
+				String pointlog = Integer.toString(id)+" "+Integer.toString(trial)+" "
+						+Integer.toString(amp)+" "+Integer.toString(wid)+" ("
+						+Integer.toString(startPosX)+","+Integer.toString(startPosY)+") ("
+						+Integer.toString(targetPosX)+","+Integer.toString(targetPosY)+") "
+						+Integer.toString(points.get(i).time)+" "+Integer.toString(successInt)+" ("
+						+Integer.toString(points.get(i).point.x)+","+Integer.toString(points.get(i).point.y)+")";
+				trajectoryBW.write(pointlog);
+				trajectoryBW.newLine();
+			}
+			
 			summaryBW.close();
 			summaryFW.close();
+			
+			trajectoryBW.close();
+			trajectoryFW.close();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -206,4 +245,15 @@ class Condition {
 		this.amp = amp; 
 		this.wid = wid;
 	}
+}
+
+class timePoint {
+	int time; 
+	Point point; 
+	
+	public timePoint(int time, Point point) {
+		this.time = time; 
+		this.point = point;
+	}
+	
 }
