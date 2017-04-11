@@ -1,6 +1,7 @@
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 
 import javax.swing.*;
 
@@ -10,6 +11,7 @@ import javax.swing.*;
  * @author Annie Ke, Dartmouth 17S CS67 Human Computer Interaction 
  */
 public class TrialWindow extends JFrame {
+	int id; 
 	private ArrayList<Condition> conditions;
 	private static final int width = 700, height = 700;
 	private static final int startWidth = 38;
@@ -27,7 +29,15 @@ public class TrialWindow extends JFrame {
 	JButton target; 
 	JLabel timel; 
 	
+	BufferedWriter summaryBW;
+	FileWriter summaryFW; 
+	BufferedWriter trajectoryBW;
+	FileWriter trajectoryFW; 
+	File summary;
+	File trajectory; 
+	
 	public TrialWindow(int id, int trial, ListModel ampmodel, ListModel widmodel) {
+		this.id = id; 
 		setTitle("Trials"); 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
 		
@@ -42,13 +52,22 @@ public class TrialWindow extends JFrame {
 			}
 		}
 		Collections.shuffle(conditions);
-		trialsLeft = new JLabel(Integer.toString(conditions.size()) + " trial(s) left");
+		
+		// create files
+		summary = new File("subject"+Integer.toString(id)+"summary.txt");
+		trajectory = new File("subject"+Integer.toString(id)+"trajectory.txt");
+		try {
+			summary.createNewFile();
+			trajectory.createNewFile();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		
 		
 		setupTrialArea(); 
 		Container cp = getContentPane();
 		cp.setLayout(new BorderLayout());
 		cp.add(trialArea, BorderLayout.CENTER);
-		cp.add(trialsLeft, BorderLayout.NORTH);
 		pack();
 	}
 	
@@ -62,6 +81,10 @@ public class TrialWindow extends JFrame {
 				handlePress(event.getPoint());
 			}
 		});
+		
+		trialsLeft = new JLabel(Integer.toString(conditions.size()) + " trial(s) left");
+		trialsLeft.setBounds(0, 0, 100, 20);
+		trialArea.add(trialsLeft);
 		
 		start = new JButton("start");
 		start.setBounds(0, height-startWidth, startWidth, startWidth);
@@ -86,9 +109,9 @@ public class TrialWindow extends JFrame {
 		trialArea.add(start);
 	}
 	
-	private void runTrial(int i) {
-		if (i < conditions.size()) {
-			Condition condition = conditions.get(i);
+	private void runTrial(int trial) {
+		if (trial < conditions.size()) {
+			Condition condition = conditions.get(trial);
 			target = new JButton();
 			target.setBackground(Color.GREEN);
 			target.setMargin(new Insets(0, 0, 0, 0));
@@ -110,12 +133,13 @@ public class TrialWindow extends JFrame {
 					timel.setBounds((int)target.getBounds().getMaxX(), 
 							(int)target.getBounds().getMaxY(), 150, 20);
 					trialArea.add(timel);
+					writeToSummary(trial+1, condition.amp, condition.wid); 
 					
 					trialArea.remove(target);
 					start.setBackground(Color.BLACK);
 					start.setForeground(Color.WHITE);
 					
-					if (i < conditions.size() - 1) {
+					if (trial < conditions.size() - 1) {
 						trialsLeft.setText(Integer.toString(conditions.size()-trial) 
 								+ " trial(s) left");
 					} else {
@@ -134,6 +158,37 @@ public class TrialWindow extends JFrame {
 			this.setVisible(false);
 			this.dispose();
 		}
+	}
+	
+	private void writeToSummary(int trial, int amp, int wid) {
+		try {
+			summaryFW = new FileWriter(summary.getAbsoluteFile(), true);
+			summaryBW = new BufferedWriter(summaryFW);
+			
+			int startPosX = (int)(start.getBounds().getMaxX()+start.getBounds().getMinX())/2;
+			int startPosY = (int)(start.getBounds().getMaxY()+start.getBounds().getMinY())/2;
+			
+			int targetPosX = (int)(target.getBounds().getMaxX()+target.getBounds().getMinX())/2;
+			int targetPosY = (int)(target.getBounds().getMaxY()+target.getBounds().getMinY())/2;
+			
+			int successInt = (success) ? 1 : 0;
+			
+			String result = Integer.toString(id)+" "+Integer.toString(trial)+" "
+					+Integer.toString(amp)+" "+Integer.toString(wid)+" ("
+					+Integer.toString(startPosX)+", "+Integer.toString(startPosY)+") ("
+					+Integer.toString(targetPosX)+", "+Integer.toString(targetPosY)+") "
+					+Integer.toString((int)time)+" "+Integer.toString(successInt);
+			
+			summaryBW.write(result);
+			summaryBW.newLine();
+			
+			summaryBW.close();
+			summaryFW.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	private void handlePress(Point p) {
