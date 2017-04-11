@@ -1,6 +1,7 @@
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -29,6 +30,7 @@ public class SettingsWindow extends JFrame {
 	private JScrollPane ampscroll;
 	private DefaultListModel<Integer> ampmodel;
 	private JList<Integer> amplist;
+	int maxAmp = 0; 
 	
 	private JLabel widl;
 	private JSpinner wids; 
@@ -46,7 +48,9 @@ public class SettingsWindow extends JFrame {
 	private JLabel totall;
 	private JButton ok;
 	private JButton cancel;
+	private JLabel outBoundsNote; 
 	
+	private JButton visualizer; 
 	
 	public SettingsWindow() {
 		setTitle("Settings"); 
@@ -85,8 +89,10 @@ public class SettingsWindow extends JFrame {
 		ampscroll.setViewportView(amplist);
 		addAmp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!ampmodel.contains((Integer) amps.getValue()) && (Integer)wids.getValue() >= 0) {
+				if (!ampmodel.contains((Integer) amps.getValue()) 
+						&& (Integer)amps.getValue() >= 0 && (Integer)amps.getValue() < 650) {
 					ampmodel.addElement((Integer) amps.getValue());
+					if ((Integer)amps.getValue() > maxAmp) maxAmp = (Integer)amps.getValue();
 					totall.setText("Total trials: " 
 						+ Integer.toString((int)trials.getValue() * ampmodel.size() * widmodel.size()));
 					updateIndices();
@@ -114,8 +120,10 @@ public class SettingsWindow extends JFrame {
 		widscroll.setViewportView(widlist);
 		addWid.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!widmodel.contains((Integer) wids.getValue()) && (Integer)wids.getValue() > 0) {
-					widmodel.addElement((Integer) wids.getValue());
+				if (!widmodel.contains((Integer) wids.getValue()) 
+						&& (Integer)wids.getValue() > 0 && (Integer)wids.getValue() < 650
+						&& (Integer)wids.getValue()+maxAmp < 650) {
+					widmodel.addElement((Integer)wids.getValue());
 					totall.setText("Total trials: " 
 							+ Integer.toString((int)trials.getValue() * ampmodel.size() * widmodel.size()));
 					updateIndices();
@@ -160,6 +168,26 @@ public class SettingsWindow extends JFrame {
 			}
 		});
 		
+		outBoundsNote = new JLabel("*Out-of-bounds values won't add.");
+		
+		visualizer = new JButton("Select file to visualize"); 
+		visualizer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				File workingDirectory = new File(System.getProperty("user.dir"));
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setCurrentDirectory(workingDirectory);
+				int retVal = fileChooser.showOpenDialog(null);
+				if (retVal == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = fileChooser.getSelectedFile(); 
+
+					VisualizerWindow visualizer = new VisualizerWindow(selectedFile);
+					visualizer.setVisible(true);
+					setVisible(false);
+					dispose();
+				}
+			}
+		});
+		
 		setLayout();
 		add(contentPane);
 		pack(); 
@@ -194,7 +222,9 @@ public class SettingsWindow extends JFrame {
 	                        .addComponent(addAmp)
 	                        .addComponent(delAmp))
 	                    .addComponent(ampscroll)
-	                    .addComponent(totall))
+	                    .addComponent(totall)
+	                    .addComponent(outBoundsNote)
+	                    .addComponent(visualizer))
 	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 	                    .addComponent(widl)
 	                    .addGroup(layout.createSequentialGroup()
@@ -237,7 +267,8 @@ public class SettingsWindow extends JFrame {
 			    	.addComponent(totall)
 			    	.addComponent(ok)
 			    	.addComponent(cancel))
-			);
+			    .addComponent(outBoundsNote)
+			    .addComponent(visualizer));
 		
 	}
 	
