@@ -13,15 +13,19 @@ public class TrialWindow extends JFrame {
 	private ArrayList<Condition> conditions;
 	private static final int width = 700, height = 700;
 	private static final int startWidth = 38;
-	private boolean startPressed = false; 
-	private boolean targetPressed = false; 
+	private boolean success = true; 
 	int trial = 0;
+	long tStart; 
+	long tEnd; 
+	long time;
+	
 	
 	JComponent trialArea; 
 	Graphics currentGraphics; 
 	JButton start; 
 	JLabel trialsLeft;
 	JButton target; 
+	JLabel timel; 
 	
 	public TrialWindow(int id, int trial, ListModel ampmodel, ListModel widmodel) {
 		setTitle("Trials"); 
@@ -51,7 +55,13 @@ public class TrialWindow extends JFrame {
 	private void setupTrialArea() {
 		trialArea = new JPanel(); 
 		trialArea.setPreferredSize(new Dimension(width, height));
-		trialArea.setLayout(null);
+		trialArea.setLayout(null); 
+		// MouseListener to detect click failures outside of buttons
+		trialArea.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent event) {
+				handlePress(event.getPoint());
+			}
+		});
 		
 		start = new JButton("start");
 		start.setBounds(0, height-startWidth, startWidth, startWidth);
@@ -60,10 +70,15 @@ public class TrialWindow extends JFrame {
 		start.setForeground(Color.WHITE);
 		start.setOpaque(true);
 		start.setBorder(null);
+		
+		// handling response of first start click
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				start.setBackground(Color.WHITE);
 				start.setForeground(Color.BLACK);
+				if (timel != null) trialArea.remove(timel);
+				success = true;
+				tStart = System.currentTimeMillis();
 				runTrial(trial); 
 				trial++;
 			}
@@ -75,24 +90,40 @@ public class TrialWindow extends JFrame {
 		if (i < conditions.size()) {
 			Condition condition = conditions.get(i);
 			target = new JButton();
-			double randomAngle = Math.random() * Math.PI/2; 
-			int tarX = (int) (Math.sin(randomAngle)*condition.amp); 
-			int tarY = (int) (Math.cos(randomAngle)*condition.amp);
-			target.setBounds(tarX, height-startWidth-tarY, condition.wid, condition.wid);
 			target.setBackground(Color.GREEN);
 			target.setMargin(new Insets(0, 0, 0, 0));
 			target.setOpaque(true);
 			target.setBorder(null);
+			
+			// find a random location to place the target button
+			double randomAngle = Math.random() * Math.PI/2; 
+			int tarX = (int) (Math.sin(randomAngle)*condition.amp); 
+			int tarY = (int) (Math.cos(randomAngle)*condition.amp);
+			target.setBounds(tarX, height-startWidth-tarY, condition.wid, condition.wid);
+			
+			// print time next to clicked button, prepare for next trial or exiting
 			target.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					tEnd = System.currentTimeMillis();
+					time = tEnd - tStart;
+					timel = new JLabel(Double.toString(time) + "ms");
+					timel.setBounds((int)target.getBounds().getMaxX(), 
+							(int)target.getBounds().getMaxY(), 150, 20);
+					trialArea.add(timel);
+					
 					trialArea.remove(target);
 					start.setBackground(Color.BLACK);
 					start.setForeground(Color.WHITE);
+					
 					if (i < conditions.size() - 1) {
 						trialsLeft.setText(Integer.toString(conditions.size()-trial) 
 								+ " trial(s) left");
 					} else {
-						trialsLeft.setText("No trials left, click start again to exit");
+						trialsLeft.setText("No trials left");
+						JLabel thankyou = new JLabel("Thank you for your participation! "
+								+ "Click start button again to exit");
+						thankyou.setBounds(150, 325, 600, 50);
+						trialArea.add(thankyou);
 					}
 					trialArea.repaint();
 				}
@@ -103,6 +134,10 @@ public class TrialWindow extends JFrame {
 			this.setVisible(false);
 			this.dispose();
 		}
+	}
+	
+	private void handlePress(Point p) {
+		success = false;
 	}
 
 }
